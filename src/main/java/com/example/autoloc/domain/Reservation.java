@@ -1,6 +1,7 @@
 package com.example.autoloc.domain;
 
 import com.example.autoloc.domain.enums.StatutReservation;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -36,5 +37,6 @@ public class Reservation {
     private Vehicule vehicule;
 
     @OneToOne(mappedBy = "reservation", fetch = FetchType.LAZY)
+    @JsonIgnore
     private Contrat contrat;
 }

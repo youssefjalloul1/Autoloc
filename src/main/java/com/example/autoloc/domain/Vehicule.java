@@ -2,6 +2,7 @@ package com.example.autoloc.domain;
 
 import com.example.autoloc.domain.enums.CategorieVehicule;
 import com.example.autoloc.domain.enums.StatutVehicule;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -32,13 +33,16 @@ public class Vehicule {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_agence")
+    @JsonIgnore
     private Agence agence;
 
     @OneToMany(mappedBy = "vehicule", fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Reservation> reservations;
 
     @OneToMany(mappedBy = "vehicule", fetch = FetchType.LAZY,
             cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Maintenance> maintenances;
 
     @ManyToMany(fetch = FetchType.LAZY,
@@ -48,6 +52,7 @@ public class Vehicule {
             joinColumns = @JoinColumn(name = "id_vehicule"),
             inverseJoinColumns = @JoinColumn(name = "id_equipement")
     )
+    @JsonIgnore
     private List<Equipement> equipements;
 
 }

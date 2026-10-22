@@ -1,11 +1,13 @@
 package com.example.autoloc.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.util.List;
+
 @Entity
 @Table(name = "agence")
 @Getter
@@ -25,9 +27,13 @@ public class Agence {
     private String adresse;
 
     private String telephone;
+
     @OneToMany(mappedBy = "agence", fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Vehicule> vehicules;
 
     @OneToMany(mappedBy = "agence", fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Employe> employes;
 }
+

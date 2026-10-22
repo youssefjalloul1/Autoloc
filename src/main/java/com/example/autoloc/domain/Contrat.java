@@ -1,5 +1,7 @@
 package com.example.autoloc.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,9 +30,11 @@ public class Contrat {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_reservation")
+    @JsonIgnore
     private Reservation reservation;
 
     @OneToMany(mappedBy = "contrat", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("contrat-paiements")
     private List<Paiement> paiements;
 
 }

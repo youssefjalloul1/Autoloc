@@ -1,5 +1,6 @@
 package com.example.autoloc.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -31,6 +32,8 @@ public class Client {
     private String numPermis;
 
     private LocalDate dateInscription;
+
     @OneToMany(mappedBy = "client", fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Reservation> reservations;
 }

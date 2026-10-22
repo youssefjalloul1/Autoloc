@@ -1,6 +1,7 @@
 package com.example.autoloc.domain;
 
 import com.example.autoloc.domain.enums.ModePaiement;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,6 +28,9 @@ public class Paiement {
     private LocalDate datePaiement;
 
     private ModePaiement modePaiement;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_contrat")
-    private Contrat contrat;}
+    @JsonBackReference("contrat-paiements")
+    private Contrat contrat;
+}
