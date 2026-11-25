@@ -1,20 +1,27 @@
 package com.example.autoloc.service.impl;
 
+import com.example.autoloc.domain.Client;
 import com.example.autoloc.domain.Reservation;
+import com.example.autoloc.domain.enums.StatutReservation;
 import com.example.autoloc.exception.ResourceNotFoundException;
 import com.example.autoloc.repository.IReservationRepository;
 import com.example.autoloc.service.IReservationService;
+import com.example.autoloc.service.observer.ReservationSubject;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
 public class ReservationServiceImpl implements IReservationService {
 
     private final IReservationRepository reservationRepository;
+    private final ReservationSubject reservationSubject;
 
-    public ReservationServiceImpl(IReservationRepository reservationRepository) {
+    public ReservationServiceImpl(IReservationRepository reservationRepository,
+                                   ReservationSubject reservationSubject) {
         this.reservationRepository = reservationRepository;
+        this.reservationSubject = reservationSubject;
     }
 
     @Override
@@ -57,5 +64,25 @@ public class ReservationServiceImpl implements IReservationService {
     @Override
     public boolean existsById(Long id) {
         return reservationRepository.existsById(id);
+    }
+
+    // Creates an in-memory reservation and triggers confirmation observers
+    @Override
+    public Reservation creerReservation(Client client) {
+        Reservation reservation = Reservation.builder()
+                .client(client)
+                .dateDebut(LocalDate.now())
+                .dateFin(LocalDate.now().plusDays(3))
+                .statut(StatutReservation.CONFIRMEE)
+                .build();
+        reservationSubject.notifierConfirmation(reservation);
+        return reservation;
+    }
+
+    // Sets statut to ANNULEE and triggers cancellation observers
+    @Override
+    public void annulerReservation(Reservation reservation) {
+        reservation.setStatut(StatutReservation.ANNULEE);
+        reservationSubject.notifierAnnulation(reservation);
     }
 }

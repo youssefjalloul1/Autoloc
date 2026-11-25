@@ -1,5 +1,6 @@
 package com.example.autoloc.service;
 
+import com.example.autoloc.domain.Client;
 import com.example.autoloc.domain.Reservation;
 import java.util.List;
 
@@ -11,4 +12,7 @@ public interface IReservationService {
     void deleteById(Long id);
     long count();
     boolean existsById(Long id);
+    // Observer demo methods
+    Reservation creerReservation(Client client);
+    void annulerReservation(Reservation reservation);
 }
