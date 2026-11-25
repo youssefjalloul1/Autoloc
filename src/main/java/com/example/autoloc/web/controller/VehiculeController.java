@@ -1,14 +1,20 @@
 package com.example.autoloc.web.controller;
 
+import com.example.autoloc.domain.enums.CategorieVehicule;
+import com.example.autoloc.domain.enums.StatutVehicule;
 import com.example.autoloc.service.IVehiculeService;
 import com.example.autoloc.web.dto.VehiculeDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -65,5 +71,30 @@ public class VehiculeController {
     public ResponseEntity<Void> desaffecter(@PathVariable Long vehiculeId) {
         vehiculeService.desaffecterVehiculeDeAgence(vehiculeId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/ville")
+    @Operation(summary = "Véhicules par ville d'agence")
+    public ResponseEntity<List<VehiculeDTO>> findByVille(@RequestParam String ville) {
+        return ResponseEntity.ok(vehiculeService.findByAgenceVille(ville));
+    }
+
+    @GetMapping("/statut")
+    @Operation(summary = "Véhicules par statut (paginé)")
+    public ResponseEntity<Page<VehiculeDTO>> findByStatut(
+            @RequestParam StatutVehicule statut,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
+        return ResponseEntity.ok(vehiculeService.findByStatut(statut, PageRequest.of(page, size)));
+    }
+
+    @GetMapping("/disponibles")
+    @Operation(summary = "Rechercher véhicules disponibles")
+    public ResponseEntity<List<VehiculeDTO>> disponibles(
+            @RequestParam String ville,
+            @RequestParam CategorieVehicule categorie,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateDebut,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFin) {
+        return ResponseEntity.ok(vehiculeService.rechercherVehiculesDisponibles(ville, categorie, dateDebut, dateFin));
     }
 }

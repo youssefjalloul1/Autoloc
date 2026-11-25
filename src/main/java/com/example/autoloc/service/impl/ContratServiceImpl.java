@@ -4,6 +4,7 @@ import com.example.autoloc.exception.ResourceNotFoundException;
 import com.example.autoloc.repository.IContratRepository;
 import com.example.autoloc.repository.IReservationRepository;
 import com.example.autoloc.service.IContratService;
+import com.example.autoloc.web.dto.ChiffreAffaireAgenceDTO;
 import com.example.autoloc.web.dto.ContratDTO;
 import com.example.autoloc.web.mapper.ContratMapper;
 import org.springframework.stereotype.Service;
@@ -63,5 +64,11 @@ public class ContratServiceImpl implements IContratService {
     @Override
     public void deleteById(Long id) {
         contratRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ChiffreAffaireAgenceDTO> chiffreAffaireParAgence() {
+        return contratRepository.chiffreAffaireParAgence();
     }
 }

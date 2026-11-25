@@ -1,14 +1,19 @@
 package com.example.autoloc.service.impl;
 
+import com.example.autoloc.domain.enums.CategorieVehicule;
+import com.example.autoloc.domain.enums.StatutVehicule;
 import com.example.autoloc.exception.ResourceNotFoundException;
 import com.example.autoloc.repository.IAgenceRepository;
 import com.example.autoloc.repository.IVehiculeRepository;
 import com.example.autoloc.service.IVehiculeService;
 import com.example.autoloc.web.dto.VehiculeDTO;
 import com.example.autoloc.web.mapper.VehiculeMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -84,5 +89,26 @@ public class VehiculeServiceImpl implements IVehiculeService {
                 .orElseThrow(() -> new ResourceNotFoundException("Vehicule", vehiculeId));
         vehicule.setAgence(null);
         vehiculeRepository.save(vehicule);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<VehiculeDTO> findByAgenceVille(String ville) {
+        return vehiculeRepository.findByAgenceVille(ville).stream()
+                .map(vehiculeMapper::toDto).toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<VehiculeDTO> findByStatut(StatutVehicule statut, Pageable pageable) {
+        return vehiculeRepository.findByStatut(statut, pageable).map(vehiculeMapper::toDto);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<VehiculeDTO> rechercherVehiculesDisponibles(String ville, CategorieVehicule categorie,
+                                                             LocalDate dateDebut, LocalDate dateFin) {
+        return vehiculeRepository.rechercherVehiculesDisponibles(ville, categorie, dateDebut, dateFin)
+                .stream().map(vehiculeMapper::toDto).toList();
     }
 }

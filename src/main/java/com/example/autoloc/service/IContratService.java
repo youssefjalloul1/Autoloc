@@ -1,6 +1,8 @@
 package com.example.autoloc.service;
 
+import com.example.autoloc.web.dto.ChiffreAffaireAgenceDTO;
 import com.example.autoloc.web.dto.ContratDTO;
+
 import java.util.List;
 
 public interface IContratService {
@@ -9,4 +11,5 @@ public interface IContratService {
     List<ContratDTO> findAll();
     ContratDTO update(Long id, ContratDTO dto);
     void deleteById(Long id);
+    List<ChiffreAffaireAgenceDTO> chiffreAffaireParAgence();
 }

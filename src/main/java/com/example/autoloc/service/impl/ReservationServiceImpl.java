@@ -11,7 +11,9 @@ import com.example.autoloc.service.IReservationService;
 import com.example.autoloc.service.observer.ReservationSubject;
 import com.example.autoloc.web.dto.ReservationRequestDTO;
 import com.example.autoloc.web.dto.ReservationResponseDTO;
+import com.example.autoloc.web.dto.TopClientDTO;
 import com.example.autoloc.web.mapper.ReservationMapper;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -91,5 +93,11 @@ public class ReservationServiceImpl implements IReservationService {
     public void annulerReservation(Reservation reservation) {
         reservation.setStatut(StatutReservation.ANNULEE);
         reservationSubject.notifierAnnulation(reservation);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TopClientDTO> topClients(Pageable pageable) {
+        return reservationRepository.topClients(pageable);
     }
 }
