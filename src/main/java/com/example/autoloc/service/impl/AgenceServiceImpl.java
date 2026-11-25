@@ -1,60 +1,58 @@
 package com.example.autoloc.service.impl;
 
-import com.example.autoloc.domain.Agence;
 import com.example.autoloc.exception.ResourceNotFoundException;
 import com.example.autoloc.repository.IAgenceRepository;
 import com.example.autoloc.service.IAgenceService;
+import com.example.autoloc.web.dto.AgenceDTO;
+import com.example.autoloc.web.mapper.AgenceMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@Transactional
 public class AgenceServiceImpl implements IAgenceService {
 
     private final IAgenceRepository agenceRepository;
+    private final AgenceMapper agenceMapper;
 
-    public AgenceServiceImpl(IAgenceRepository agenceRepository) {
+    public AgenceServiceImpl(IAgenceRepository agenceRepository, AgenceMapper agenceMapper) {
         this.agenceRepository = agenceRepository;
+        this.agenceMapper = agenceMapper;
     }
 
     @Override
-    public Agence create(Agence agence) {
-        return agenceRepository.save(agence);
+    public AgenceDTO creer(AgenceDTO dto) {
+        return agenceMapper.toDto(agenceRepository.save(agenceMapper.toEntity(dto)));
     }
 
     @Override
-    public Agence findById(Long id) {
-        return agenceRepository.findById(id)
+    @Transactional(readOnly = true)
+    public AgenceDTO findById(Long id) {
+        return agenceMapper.toDto(agenceRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Agence", id)));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<AgenceDTO> findAll() {
+        return agenceRepository.findAll().stream().map(agenceMapper::toDto).toList();
+    }
+
+    @Override
+    public AgenceDTO update(Long id, AgenceDTO dto) {
+        var existing = agenceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Agence", id));
-    }
-
-    @Override
-    public List<Agence> findAll() {
-        return agenceRepository.findAll();
-    }
-
-    @Override
-    public Agence update(Long id, Agence agence) {
-        Agence existing = findById(id);
-        existing.setNom(agence.getNom());
-        existing.setVille(agence.getVille());
-        existing.setAdresse(agence.getAdresse());
-        existing.setTelephone(agence.getTelephone());
-        return agenceRepository.save(existing);
+        existing.setNom(dto.getNom());
+        existing.setVille(dto.getVille());
+        existing.setAdresse(dto.getAdresse());
+        existing.setTelephone(dto.getTelephone());
+        return agenceMapper.toDto(agenceRepository.save(existing));
     }
 
     @Override
     public void deleteById(Long id) {
         agenceRepository.deleteById(id);
-    }
-
-    @Override
-    public long count() {
-        return agenceRepository.count();
-    }
-
-    @Override
-    public boolean existsById(Long id) {
-        return agenceRepository.existsById(id);
     }
 }

@@ -1,14 +1,12 @@
 package com.example.autoloc.service;
 
-import com.example.autoloc.domain.Client;
+import com.example.autoloc.web.dto.ClientDTO;
 import java.util.List;
 
 public interface IClientService {
-    Client create(Client client);
-    Client findById(Long id);
-    List<Client> findAll();
-    Client update(Long id, Client client);
+    ClientDTO creer(ClientDTO dto);
+    ClientDTO findById(Long id);
+    List<ClientDTO> findAll();
+    ClientDTO update(Long id, ClientDTO dto);
     void deleteById(Long id);
-    long count();
-    boolean existsById(Long id);
 }

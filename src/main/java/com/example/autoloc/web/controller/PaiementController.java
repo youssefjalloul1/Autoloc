@@ -1,39 +1,55 @@
 package com.example.autoloc.web.controller;
 
-import com.example.autoloc.domain.Paiement;
 import com.example.autoloc.service.IPaiementService;
+import com.example.autoloc.web.dto.PaiementDTO;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/paiements")
-@RequiredArgsConstructor
-@Tag(name = "Paiements", description = "Consultation des paiements (lecture seule)")
+@Tag(name = "Paiements")
 public class PaiementController {
 
     private final IPaiementService paiementService;
 
-    @GetMapping
-    @Operation(summary = "Lister tous les paiements")
-    @ApiResponses(@ApiResponse(responseCode = "200", description = "Liste retournee"))
-    public List<Paiement> findAll() {
-        return paiementService.findAll();
+    public PaiementController(IPaiementService paiementService) {
+        this.paiementService = paiementService;
+    }
+
+    @PostMapping
+    @Operation(summary = "Créer un paiement")
+    public ResponseEntity<PaiementDTO> creer(@Valid @RequestBody PaiementDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(paiementService.creer(dto));
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Consulter un paiement")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Paiement trouve"),
-            @ApiResponse(responseCode = "404", description = "Paiement introuvable")
-    })
-    public Paiement findById(@Parameter(description = "Identifiant du paiement") @PathVariable Long id) {
-        return paiementService.findById(id);
+    @Operation(summary = "Obtenir un paiement par id")
+    public ResponseEntity<PaiementDTO> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(paiementService.findById(id));
+    }
+
+    @GetMapping
+    @Operation(summary = "Lister tous les paiements")
+    public ResponseEntity<List<PaiementDTO>> findAll() {
+        return ResponseEntity.ok(paiementService.findAll());
+    }
+
+    @PutMapping("/{id}")
+    @Operation(summary = "Modifier un paiement")
+    public ResponseEntity<PaiementDTO> update(@PathVariable Long id, @Valid @RequestBody PaiementDTO dto) {
+        return ResponseEntity.ok(paiementService.update(id, dto));
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Supprimer un paiement")
+    public ResponseEntity<Void> deleteById(@PathVariable Long id) {
+        paiementService.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 }

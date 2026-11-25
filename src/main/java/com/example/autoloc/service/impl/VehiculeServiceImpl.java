@@ -1,48 +1,66 @@
 package com.example.autoloc.service.impl;
 
-import com.example.autoloc.domain.Vehicule;
 import com.example.autoloc.exception.ResourceNotFoundException;
+import com.example.autoloc.repository.IAgenceRepository;
 import com.example.autoloc.repository.IVehiculeRepository;
 import com.example.autoloc.service.IVehiculeService;
+import com.example.autoloc.web.dto.VehiculeDTO;
+import com.example.autoloc.web.mapper.VehiculeMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@Transactional
 public class VehiculeServiceImpl implements IVehiculeService {
 
     private final IVehiculeRepository vehiculeRepository;
+    private final IAgenceRepository agenceRepository;
+    private final VehiculeMapper vehiculeMapper;
 
-    public VehiculeServiceImpl(IVehiculeRepository vehiculeRepository) {
+    public VehiculeServiceImpl(IVehiculeRepository vehiculeRepository,
+                                IAgenceRepository agenceRepository,
+                                VehiculeMapper vehiculeMapper) {
         this.vehiculeRepository = vehiculeRepository;
+        this.agenceRepository = agenceRepository;
+        this.vehiculeMapper = vehiculeMapper;
     }
 
     @Override
-    public Vehicule create(Vehicule vehicule) {
-        return vehiculeRepository.save(vehicule);
+    public VehiculeDTO creer(VehiculeDTO dto) {
+        var vehicule = vehiculeMapper.toEntity(dto);
+        if (dto.getAgenceId() != null) {
+            vehicule.setAgence(agenceRepository.findById(dto.getAgenceId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Agence", dto.getAgenceId())));
+        }
+        return vehiculeMapper.toDto(vehiculeRepository.save(vehicule));
     }
 
     @Override
-    public Vehicule findById(Long id) {
-        return vehiculeRepository.findById(id)
+    @Transactional(readOnly = true)
+    public VehiculeDTO findById(Long id) {
+        return vehiculeMapper.toDto(vehiculeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Vehicule", id)));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<VehiculeDTO> findAll() {
+        return vehiculeRepository.findAll().stream().map(vehiculeMapper::toDto).toList();
+    }
+
+    @Override
+    public VehiculeDTO update(Long id, VehiculeDTO dto) {
+        var existing = vehiculeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Vehicule", id));
-    }
-
-    @Override
-    public List<Vehicule> findAll() {
-        return vehiculeRepository.findAll();
-    }
-
-    @Override
-    public Vehicule update(Long id, Vehicule vehicule) {
-        Vehicule existing = findById(id);
-        existing.setImmatriculation(vehicule.getImmatriculation());
-        existing.setMarque(vehicule.getMarque());
-        existing.setModele(vehicule.getModele());
-        existing.setCategorie(vehicule.getCategorie());
-        existing.setTarifJournalier(vehicule.getTarifJournalier());
-        existing.setStatut(vehicule.getStatut());
-        return vehiculeRepository.save(existing);
+        existing.setImmatriculation(dto.getImmatriculation());
+        existing.setMarque(dto.getMarque());
+        existing.setModele(dto.getModele());
+        existing.setCategorie(dto.getCategorie());
+        existing.setTarifJournalier(dto.getTarifJournalier());
+        existing.setStatut(dto.getStatut());
+        return vehiculeMapper.toDto(vehiculeRepository.save(existing));
     }
 
     @Override
@@ -51,12 +69,20 @@ public class VehiculeServiceImpl implements IVehiculeService {
     }
 
     @Override
-    public long count() {
-        return vehiculeRepository.count();
+    public void affecterVehiculeAAgence(Long vehiculeId, Long agenceId) {
+        var vehicule = vehiculeRepository.findById(vehiculeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Vehicule", vehiculeId));
+        var agence = agenceRepository.findById(agenceId)
+                .orElseThrow(() -> new ResourceNotFoundException("Agence", agenceId));
+        vehicule.setAgence(agence);
+        vehiculeRepository.save(vehicule);
     }
 
     @Override
-    public boolean existsById(Long id) {
-        return vehiculeRepository.existsById(id);
+    public void desaffecterVehiculeDeAgence(Long vehiculeId) {
+        var vehicule = vehiculeRepository.findById(vehiculeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Vehicule", vehiculeId));
+        vehicule.setAgence(null);
+        vehiculeRepository.save(vehicule);
     }
 }

@@ -1,14 +1,12 @@
 package com.example.autoloc.service;
 
-import com.example.autoloc.domain.Paiement;
+import com.example.autoloc.web.dto.PaiementDTO;
 import java.util.List;
 
 public interface IPaiementService {
-    Paiement create(Paiement paiement);
-    Paiement findById(Long id);
-    List<Paiement> findAll();
-    Paiement update(Long id, Paiement paiement);
+    PaiementDTO creer(PaiementDTO dto);
+    PaiementDTO findById(Long id);
+    List<PaiementDTO> findAll();
+    PaiementDTO update(Long id, PaiementDTO dto);
     void deleteById(Long id);
-    long count();
-    boolean existsById(Long id);
 }

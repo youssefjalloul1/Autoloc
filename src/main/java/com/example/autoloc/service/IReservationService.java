@@ -2,16 +2,15 @@ package com.example.autoloc.service;
 
 import com.example.autoloc.domain.Client;
 import com.example.autoloc.domain.Reservation;
+import com.example.autoloc.web.dto.ReservationRequestDTO;
+import com.example.autoloc.web.dto.ReservationResponseDTO;
 import java.util.List;
 
 public interface IReservationService {
-    Reservation create(Reservation reservation);
-    Reservation findById(Long id);
-    List<Reservation> findAll();
-    Reservation update(Long id, Reservation reservation);
+    ReservationResponseDTO creer(ReservationRequestDTO dto);
+    ReservationResponseDTO findById(Long id);
+    List<ReservationResponseDTO> findAll();
     void deleteById(Long id);
-    long count();
-    boolean existsById(Long id);
     // Observer demo methods
     Reservation creerReservation(Client client);
     void annulerReservation(Reservation reservation);

@@ -4,51 +4,68 @@ import com.example.autoloc.domain.Client;
 import com.example.autoloc.domain.Reservation;
 import com.example.autoloc.domain.enums.StatutReservation;
 import com.example.autoloc.exception.ResourceNotFoundException;
+import com.example.autoloc.repository.IClientRepository;
 import com.example.autoloc.repository.IReservationRepository;
+import com.example.autoloc.repository.IVehiculeRepository;
 import com.example.autoloc.service.IReservationService;
 import com.example.autoloc.service.observer.ReservationSubject;
+import com.example.autoloc.web.dto.ReservationRequestDTO;
+import com.example.autoloc.web.dto.ReservationResponseDTO;
+import com.example.autoloc.web.mapper.ReservationMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
 
 @Service
+@Transactional
 public class ReservationServiceImpl implements IReservationService {
 
     private final IReservationRepository reservationRepository;
+    private final IClientRepository clientRepository;
+    private final IVehiculeRepository vehiculeRepository;
+    private final ReservationMapper reservationMapper;
     private final ReservationSubject reservationSubject;
 
     public ReservationServiceImpl(IReservationRepository reservationRepository,
+                                   IClientRepository clientRepository,
+                                   IVehiculeRepository vehiculeRepository,
+                                   ReservationMapper reservationMapper,
                                    ReservationSubject reservationSubject) {
         this.reservationRepository = reservationRepository;
+        this.clientRepository = clientRepository;
+        this.vehiculeRepository = vehiculeRepository;
+        this.reservationMapper = reservationMapper;
         this.reservationSubject = reservationSubject;
     }
 
     @Override
-    public Reservation create(Reservation reservation) {
-        return reservationRepository.save(reservation);
+    public ReservationResponseDTO creer(ReservationRequestDTO dto) {
+        var client = clientRepository.findById(dto.getClientId())
+                .orElseThrow(() -> new ResourceNotFoundException("Client", dto.getClientId()));
+        var vehicule = vehiculeRepository.findById(dto.getVehiculeId())
+                .orElseThrow(() -> new ResourceNotFoundException("Vehicule", dto.getVehiculeId()));
+        Reservation reservation = new Reservation();
+        reservation.setClient(client);
+        reservation.setVehicule(vehicule);
+        reservation.setDateDebut(dto.getDateDebut());
+        reservation.setDateFin(dto.getDateFin());
+        reservation.setStatut(StatutReservation.EN_ATTENTE);
+        return reservationMapper.toDto(reservationRepository.save(reservation));
     }
 
     @Override
-    public Reservation findById(Long id) {
-        return reservationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Reservation", id));
+    @Transactional(readOnly = true)
+    public ReservationResponseDTO findById(Long id) {
+        return reservationMapper.toDto(reservationRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation", id)));
     }
 
     @Override
-    public List<Reservation> findAll() {
-        return reservationRepository.findAll();
-    }
-
-    @Override
-    public Reservation update(Long id, Reservation reservation) {
-        Reservation existing = findById(id);
-        existing.setDateDebut(reservation.getDateDebut());
-        existing.setDateFin(reservation.getDateFin());
-        existing.setStatut(reservation.getStatut());
-        existing.setClient(reservation.getClient());
-        existing.setVehicule(reservation.getVehicule());
-        return reservationRepository.save(existing);
+    @Transactional(readOnly = true)
+    public List<ReservationResponseDTO> findAll() {
+        return reservationRepository.findAll().stream().map(reservationMapper::toDto).toList();
     }
 
     @Override
@@ -56,17 +73,7 @@ public class ReservationServiceImpl implements IReservationService {
         reservationRepository.deleteById(id);
     }
 
-    @Override
-    public long count() {
-        return reservationRepository.count();
-    }
-
-    @Override
-    public boolean existsById(Long id) {
-        return reservationRepository.existsById(id);
-    }
-
-    // Creates an in-memory reservation and triggers confirmation observers
+    // Observer demo: creates in-memory reservation and notifies
     @Override
     public Reservation creerReservation(Client client) {
         Reservation reservation = Reservation.builder()
@@ -79,7 +86,7 @@ public class ReservationServiceImpl implements IReservationService {
         return reservation;
     }
 
-    // Sets statut to ANNULEE and triggers cancellation observers
+    // Observer demo: sets statut ANNULEE and notifies
     @Override
     public void annulerReservation(Reservation reservation) {
         reservation.setStatut(StatutReservation.ANNULEE);

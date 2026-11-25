@@ -1,14 +1,14 @@
 package com.example.autoloc.service;
 
-import com.example.autoloc.domain.Vehicule;
+import com.example.autoloc.web.dto.VehiculeDTO;
 import java.util.List;
 
 public interface IVehiculeService {
-    Vehicule create(Vehicule vehicule);
-    Vehicule findById(Long id);
-    List<Vehicule> findAll();
-    Vehicule update(Long id, Vehicule vehicule);
+    VehiculeDTO creer(VehiculeDTO dto);
+    VehiculeDTO findById(Long id);
+    List<VehiculeDTO> findAll();
+    VehiculeDTO update(Long id, VehiculeDTO dto);
     void deleteById(Long id);
-    long count();
-    boolean existsById(Long id);
+    void affecterVehiculeAAgence(Long vehiculeId, Long agenceId);
+    void desaffecterVehiculeDeAgence(Long vehiculeId);
 }

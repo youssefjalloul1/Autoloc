@@ -2,7 +2,7 @@ package com.example.autoloc.config;
 
 import com.example.autoloc.domain.*;
 import com.example.autoloc.domain.enums.*;
-import com.example.autoloc.service.*;
+import com.example.autoloc.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -14,19 +14,19 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 public class DataInitializer implements CommandLineRunner {
 
-    private final IAgenceService agenceService;
-    private final IClientService clientService;
-    private final IVehiculeService vehiculeService;
-    private final IEmployeService employeService;
-    private final IEquipementService equipementService;
-    private final IReservationService reservationService;
-    private final IContratService contratService;
-    private final IMaintenanceService maintenanceService;
+    private final IAgenceRepository agenceRepository;
+    private final IClientRepository clientRepository;
+    private final IVehiculeRepository vehiculeRepository;
+    private final IEmployeRepository employeRepository;
+    private final IEquipementRepository equipementRepository;
+    private final IReservationRepository reservationRepository;
+    private final IContratRepository contratRepository;
+    private final IMaintenanceRepository maintenanceRepository;
 
     @Override
     public void run(String... args) {
 
-        if (!agenceService.findAll().isEmpty()) {
+        if (!agenceRepository.findAll().isEmpty()) {
             System.out.println("[DataInitializer] Data already exists, skipping.");
             return;
         }
@@ -39,14 +39,14 @@ public class DataInitializer implements CommandLineRunner {
         a1.setVille("Tunis");
         a1.setAdresse("Avenue Habib Bourguiba, Tunis");
         a1.setTelephone("71000001");
-        a1 = agenceService.create(a1);
+        a1 = agenceRepository.save(a1);
 
         Agence a2 = new Agence();
         a2.setNom("AutoLoc Sfax");
         a2.setVille("Sfax");
         a2.setAdresse("Rue de la Republique, Sfax");
         a2.setTelephone("74000002");
-        a2 = agenceService.create(a2);
+        a2 = agenceRepository.save(a2);
 
         // --- Employes ---
         Employe e1 = new Employe();
@@ -54,21 +54,21 @@ public class DataInitializer implements CommandLineRunner {
         e1.setPrenom("Karim");
         e1.setRole(RoleEmploye.MANAGER);
         e1.setAgence(a1);
-        employeService.create(e1);
+        employeRepository.save(e1);
 
         Employe e2 = new Employe();
         e2.setNom("Jlassi");
         e2.setPrenom("Nour");
         e2.setRole(RoleEmploye.AGENT);
         e2.setAgence(a1);
-        employeService.create(e2);
+        employeRepository.save(e2);
 
         Employe e3 = new Employe();
         e3.setNom("Trabelsi");
         e3.setPrenom("Bilel");
         e3.setRole(RoleEmploye.AGENT);
         e3.setAgence(a2);
-        employeService.create(e3);
+        employeRepository.save(e3);
 
         // --- Vehicules ---
         Vehicule v1 = new Vehicule();
@@ -79,7 +79,7 @@ public class DataInitializer implements CommandLineRunner {
         v1.setTarifJournalier(new BigDecimal("85.00"));
         v1.setStatut(StatutVehicule.DISPONIBLE);
         v1.setAgence(a1);
-        v1 = vehiculeService.create(v1);
+        v1 = vehiculeRepository.save(v1);
 
         Vehicule v2 = new Vehicule();
         v2.setImmatriculation("200 TUN 2000");
@@ -89,7 +89,7 @@ public class DataInitializer implements CommandLineRunner {
         v2.setTarifJournalier(new BigDecimal("130.00"));
         v2.setStatut(StatutVehicule.DISPONIBLE);
         v2.setAgence(a1);
-        v2 = vehiculeService.create(v2);
+        v2 = vehiculeRepository.save(v2);
 
         Vehicule v3 = new Vehicule();
         v3.setImmatriculation("300 TUN 3000");
@@ -99,7 +99,7 @@ public class DataInitializer implements CommandLineRunner {
         v3.setTarifJournalier(new BigDecimal("170.00"));
         v3.setStatut(StatutVehicule.DISPONIBLE);
         v3.setAgence(a2);
-        v3 = vehiculeService.create(v3);
+        v3 = vehiculeRepository.save(v3);
 
         Vehicule v4 = new Vehicule();
         v4.setImmatriculation("400 TUN 4000");
@@ -109,20 +109,20 @@ public class DataInitializer implements CommandLineRunner {
         v4.setTarifJournalier(new BigDecimal("200.00"));
         v4.setStatut(StatutVehicule.MAINTENANCE);
         v4.setAgence(a2);
-        v4 = vehiculeService.create(v4);
+        v4 = vehiculeRepository.save(v4);
 
         // --- Equipements ---
         Equipement eq1 = new Equipement();
         eq1.setLibelle("GPS");
-        equipementService.create(eq1);
+        equipementRepository.save(eq1);
 
         Equipement eq2 = new Equipement();
         eq2.setLibelle("Siege bebe");
-        equipementService.create(eq2);
+        equipementRepository.save(eq2);
 
         Equipement eq3 = new Equipement();
         eq3.setLibelle("Wifi embarque");
-        equipementService.create(eq3);
+        equipementRepository.save(eq3);
 
         // --- Clients ---
         Client c1 = new Client();
@@ -132,7 +132,7 @@ public class DataInitializer implements CommandLineRunner {
         c1.setTelephone("20111222");
         c1.setNumPermis("P100001");
         c1.setDateInscription(LocalDate.of(2025, 1, 10));
-        c1 = clientService.create(c1);
+        c1 = clientRepository.save(c1);
 
         Client c2 = new Client();
         c2.setNom("Mansouri");
@@ -141,7 +141,7 @@ public class DataInitializer implements CommandLineRunner {
         c2.setTelephone("55222333");
         c2.setNumPermis("P100002");
         c2.setDateInscription(LocalDate.of(2025, 3, 20));
-        c2 = clientService.create(c2);
+        c2 = clientRepository.save(c2);
 
         Client c3 = new Client();
         c3.setNom("Gharbi");
@@ -150,7 +150,7 @@ public class DataInitializer implements CommandLineRunner {
         c3.setTelephone("98765432");
         c3.setNumPermis("P100003");
         c3.setDateInscription(LocalDate.of(2025, 6, 5));
-        c3 = clientService.create(c3);
+        c3 = clientRepository.save(c3);
 
         // --- Maintenances ---
         Maintenance m1 = new Maintenance();
@@ -158,7 +158,7 @@ public class DataInitializer implements CommandLineRunner {
         m1.setDateFin(LocalDate.of(2026, 10, 20));
         m1.setDescription("Vidange et revision generale");
         m1.setVehicule(v4);
-        maintenanceService.create(m1);
+        maintenanceRepository.save(m1);
 
         // --- Reservations ---
         Reservation r1 = new Reservation();
@@ -167,7 +167,7 @@ public class DataInitializer implements CommandLineRunner {
         r1.setStatut(StatutReservation.CONFIRMEE);
         r1.setClient(c1);
         r1.setVehicule(v1);
-        r1 = reservationService.create(r1);
+        r1 = reservationRepository.save(r1);
 
         Reservation r2 = new Reservation();
         r2.setDateDebut(LocalDate.of(2026, 11, 10));
@@ -175,7 +175,7 @@ public class DataInitializer implements CommandLineRunner {
         r2.setStatut(StatutReservation.EN_ATTENTE);
         r2.setClient(c2);
         r2.setVehicule(v2);
-        r2 = reservationService.create(r2);
+        reservationRepository.save(r2);
 
         Reservation r3 = new Reservation();
         r3.setDateDebut(LocalDate.of(2026, 10, 1));
@@ -183,7 +183,7 @@ public class DataInitializer implements CommandLineRunner {
         r3.setStatut(StatutReservation.TERMINEE);
         r3.setClient(c3);
         r3.setVehicule(v3);
-        r3 = reservationService.create(r3);
+        r3 = reservationRepository.save(r3);
 
         // --- Contrats avec paiements en cascade ---
         Contrat contrat1 = new Contrat();
@@ -205,7 +205,7 @@ public class DataInitializer implements CommandLineRunner {
         p2.setContrat(contrat1);
 
         contrat1.setPaiements(java.util.List.of(p1, p2));
-        contratService.create(contrat1);
+        contratRepository.save(contrat1);
 
         Contrat contrat2 = new Contrat();
         contrat2.setDateSignature(LocalDate.of(2026, 10, 1));
@@ -220,7 +220,7 @@ public class DataInitializer implements CommandLineRunner {
         p3.setContrat(contrat2);
 
         contrat2.setPaiements(java.util.List.of(p3));
-        contratService.create(contrat2);
+        contratRepository.save(contrat2);
 
         System.out.println("[DataInitializer] Sample data inserted successfully.");
     }

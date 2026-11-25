@@ -1,73 +1,55 @@
 package com.example.autoloc.web.controller;
 
-import com.example.autoloc.domain.Contrat;
 import com.example.autoloc.service.IContratService;
+import com.example.autoloc.web.dto.ContratDTO;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/contrats")
-@RequiredArgsConstructor
-@Tag(name = "Contrats", description = "Gestion des contrats de location")
+@Tag(name = "Contrats")
 public class ContratController {
 
     private final IContratService contratService;
 
-    @GetMapping
-    @Operation(summary = "Lister tous les contrats")
-    @ApiResponses(@ApiResponse(responseCode = "200", description = "Liste retournee"))
-    public List<Contrat> findAll() {
-        return contratService.findAll();
-    }
-
-    @GetMapping("/{id}")
-    @Operation(summary = "Consulter un contrat")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Contrat trouve"),
-            @ApiResponse(responseCode = "404", description = "Contrat introuvable")
-    })
-    public Contrat findById(@Parameter(description = "Identifiant du contrat") @PathVariable Long id) {
-        return contratService.findById(id);
+    public ContratController(IContratService contratService) {
+        this.contratService = contratService;
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Creer un contrat")
-    @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Contrat cree"),
-            @ApiResponse(responseCode = "400", description = "Donnees invalides")
-    })
-    public Contrat create(@RequestBody Contrat contrat) {
-        return contratService.create(contrat);
+    @Operation(summary = "Créer un contrat")
+    public ResponseEntity<ContratDTO> creer(@Valid @RequestBody ContratDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(contratService.creer(dto));
+    }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Obtenir un contrat par id")
+    public ResponseEntity<ContratDTO> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(contratService.findById(id));
+    }
+
+    @GetMapping
+    @Operation(summary = "Lister tous les contrats")
+    public ResponseEntity<List<ContratDTO>> findAll() {
+        return ResponseEntity.ok(contratService.findAll());
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Modifier un contrat")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Contrat modifie"),
-            @ApiResponse(responseCode = "404", description = "Contrat introuvable"),
-            @ApiResponse(responseCode = "400", description = "Donnees invalides")
-    })
-    public Contrat update(@PathVariable Long id, @RequestBody Contrat contrat) {
-        return contratService.update(id, contrat);
+    public ResponseEntity<ContratDTO> update(@PathVariable Long id, @Valid @RequestBody ContratDTO dto) {
+        return ResponseEntity.ok(contratService.update(id, dto));
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Supprimer un contrat")
-    @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Contrat supprime"),
-            @ApiResponse(responseCode = "404", description = "Contrat introuvable")
-    })
-    public void deleteById(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteById(@PathVariable Long id) {
         contratService.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 }

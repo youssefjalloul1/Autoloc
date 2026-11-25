@@ -2,19 +2,25 @@ package com.example.autoloc.service.impl;
 
 import com.example.autoloc.domain.Employe;
 import com.example.autoloc.exception.ResourceNotFoundException;
+import com.example.autoloc.repository.IAgenceRepository;
 import com.example.autoloc.repository.IEmployeRepository;
 import com.example.autoloc.service.IEmployeService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@Transactional
 public class EmployeServiceImpl implements IEmployeService {
 
     private final IEmployeRepository employeRepository;
+    private final IAgenceRepository agenceRepository;
 
-    public EmployeServiceImpl(IEmployeRepository employeRepository) {
+    public EmployeServiceImpl(IEmployeRepository employeRepository,
+                               IAgenceRepository agenceRepository) {
         this.employeRepository = employeRepository;
+        this.agenceRepository = agenceRepository;
     }
 
     @Override
@@ -23,23 +29,24 @@ public class EmployeServiceImpl implements IEmployeService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Employe findById(Long id) {
         return employeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Employe", id));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Employe> findAll() {
         return employeRepository.findAll();
     }
 
     @Override
     public Employe update(Long id, Employe employe) {
-        Employe existing = findById(id);
+        var existing = findById(id);
         existing.setNom(employe.getNom());
         existing.setPrenom(employe.getPrenom());
         existing.setRole(employe.getRole());
-        existing.setAgence(employe.getAgence());
         return employeRepository.save(existing);
     }
 
@@ -49,12 +56,20 @@ public class EmployeServiceImpl implements IEmployeService {
     }
 
     @Override
-    public long count() {
-        return employeRepository.count();
+    public void affecterEmployeAAgence(Long employeId, Long agenceId) {
+        var employe = employeRepository.findById(employeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Employe", employeId));
+        var agence = agenceRepository.findById(agenceId)
+                .orElseThrow(() -> new ResourceNotFoundException("Agence", agenceId));
+        employe.setAgence(agence);
+        employeRepository.save(employe);
     }
 
     @Override
-    public boolean existsById(Long id) {
-        return employeRepository.existsById(id);
+    public void desaffecterEmployeDeAgence(Long employeId) {
+        var employe = employeRepository.findById(employeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Employe", employeId));
+        employe.setAgence(null);
+        employeRepository.save(employe);
     }
 }

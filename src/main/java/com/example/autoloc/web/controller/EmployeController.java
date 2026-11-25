@@ -3,71 +3,66 @@ package com.example.autoloc.web.controller;
 import com.example.autoloc.domain.Employe;
 import com.example.autoloc.service.IEmployeService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/employes")
-@RequiredArgsConstructor
-@Tag(name = "Employes", description = "Gestion des employes")
+@Tag(name = "Employes")
 public class EmployeController {
 
     private final IEmployeService employeService;
 
-    @GetMapping
-    @Operation(summary = "Lister tous les employes")
-    @ApiResponses(@ApiResponse(responseCode = "200", description = "Liste retournee"))
-    public List<Employe> findAll() {
-        return employeService.findAll();
-    }
-
-    @GetMapping("/{id}")
-    @Operation(summary = "Consulter un employe")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Employe trouve"),
-            @ApiResponse(responseCode = "404", description = "Employe introuvable")
-    })
-    public Employe findById(@Parameter(description = "Identifiant de l'employe") @PathVariable Long id) {
-        return employeService.findById(id);
+    public EmployeController(IEmployeService employeService) {
+        this.employeService = employeService;
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Creer un employe")
-    @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Employe cree"),
-            @ApiResponse(responseCode = "400", description = "Donnees invalides")
-    })
-    public Employe create(@RequestBody Employe employe) {
-        return employeService.create(employe);
+    @Operation(summary = "Créer un employé")
+    public ResponseEntity<Employe> create(@RequestBody Employe employe) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(employeService.create(employe));
+    }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Obtenir un employé par id")
+    public ResponseEntity<Employe> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(employeService.findById(id));
+    }
+
+    @GetMapping
+    @Operation(summary = "Lister tous les employés")
+    public ResponseEntity<List<Employe>> findAll() {
+        return ResponseEntity.ok(employeService.findAll());
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Modifier un employe")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Employe modifie"),
-            @ApiResponse(responseCode = "404", description = "Employe introuvable"),
-            @ApiResponse(responseCode = "400", description = "Donnees invalides")
-    })
-    public Employe update(@PathVariable Long id, @RequestBody Employe employe) {
-        return employeService.update(id, employe);
+    @Operation(summary = "Modifier un employé")
+    public ResponseEntity<Employe> update(@PathVariable Long id, @RequestBody Employe employe) {
+        return ResponseEntity.ok(employeService.update(id, employe));
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @Operation(summary = "Supprimer un employe")
-    @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Employe supprime"),
-            @ApiResponse(responseCode = "404", description = "Employe introuvable")
-    })
-    public void deleteById(@PathVariable Long id) {
+    @Operation(summary = "Supprimer un employé")
+    public ResponseEntity<Void> deleteById(@PathVariable Long id) {
         employeService.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{employeId}/affecter/{agenceId}")
+    @Operation(summary = "Affecter un employé à une agence")
+    public ResponseEntity<Void> affecter(@PathVariable Long employeId, @PathVariable Long agenceId) {
+        employeService.affecterEmployeAAgence(employeId, agenceId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{employeId}/desaffecter")
+    @Operation(summary = "Désaffecter un employé de son agence")
+    public ResponseEntity<Void> desaffecter(@PathVariable Long employeId) {
+        employeService.desaffecterEmployeDeAgence(employeId);
+        return ResponseEntity.noContent().build();
     }
 }
